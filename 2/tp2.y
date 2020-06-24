@@ -15,21 +15,18 @@
 Toml: TITLE '=' Aspas Blocos
     ;
 
-Blocos: Bloco MaisBlocos
+Blocos: Blocos Bloco
+    |
     ;
 
-MaisBlocos: Bloco MaisBlocos
-    | 
-    ;
-
-Bloco: TagBloco ElemBloco RestoBloco
+Bloco: TagBloco ElsBloco
     ;
 
 TagBloco: '[' CHAVE ']'
     ;
 
-RestoBloco: ElemBloco RestoBloco
-    | 
+ElsBloco: ElsBloco ElemBloco
+    | ElemBloco
     ;
 
 ElemBloco: ChaveValor
