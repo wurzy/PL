@@ -1,1 +1,44 @@
 [^ \n]*{espacos}=[^#\n]*   
+
+Toml: TITLE '=' Aspas Blocos
+    ;
+
+Blocos: Bloco MaisBlocos
+    ;
+
+MaisBlocos: Bloco MaisBlocos
+    | 
+    ;
+
+Bloco: ElemBloco RestoBloco
+    ;
+
+RestoBloco: ElemBloco RestoBloco
+    | 
+    ;
+
+ElemBloco: ChaveValor
+    | Bloco 
+    ;
+
+ChaveValor: CHAVE '=' Valor 
+    ;
+
+Valor: Aspas 
+    | VALOR 
+    | Array
+    ;
+
+Array: '[' ElsArray ']'
+    ;
+
+ElsArray: Valor OutrosElsArray
+    | 
+    ;
+
+OutrosElsArray: ',' Valor OutrosElsArray 
+    | 
+    ;
+
+Aspas: '"' STRING '"'
+    ;

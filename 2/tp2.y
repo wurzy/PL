@@ -6,15 +6,47 @@
 #include <string.h>
 #include <math.h>
 
-double mem[128];
-double ans;
-
 %}
+
+%token TITLE VALOR CHAVE STRING 
 
 %%
 
+Toml: TITLE '=' Aspas Blocos
+    ;
 
+Blocos: Bloco Blocos
+    | 
+    ;
 
+Bloco: ElemBloco 
+    | 
+    ;
+
+ElemBloco: ChaveValor 
+    | Bloco 
+    ;
+
+ChaveValor: CHAVE '=' Valor 
+    ;
+
+Valor: Aspas
+    | VALOR 
+    | Array 
+    ;
+
+Array: '[' Elems ']'
+    ;
+
+Elems: Valor OutrosElems 
+    | 
+    ;
+
+OutrosElems: ',' Valor OutrosElems
+    |
+    ;
+
+Aspas: '"' STRING '"' 
 %%
 
 int main(){

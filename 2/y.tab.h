@@ -45,34 +45,21 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    NUM = 258,
-    VAR = 259,
-    ANS = 260,
-    FUN1 = 261
+    TITLE = 258,
+    VALOR = 259,
+    CHAVE = 260,
+    STRING = 261
   };
 #endif
 /* Tokens.  */
-#define NUM 258
-#define VAR 259
-#define ANS 260
-#define FUN1 261
+#define TITLE 258
+#define VALOR 259
+#define CHAVE 260
+#define STRING 261
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
-union YYSTYPE
-{
-#line 14 "calc3.y" /* yacc.c:1909  */
- 
-        double n;
-		char v;
-        double (*f)(double);
-	  
-
-#line 73 "y.tab.h" /* yacc.c:1909  */
-};
-
-typedef union YYSTYPE YYSTYPE;
+typedef int YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
