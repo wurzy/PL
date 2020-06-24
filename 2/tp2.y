@@ -15,38 +15,49 @@
 Toml: TITLE '=' Aspas Blocos
     ;
 
-Blocos: Bloco Blocos
+Blocos: Bloco MaisBlocos
+    ;
+
+MaisBlocos: Bloco MaisBlocos
     | 
     ;
 
-Bloco: ElemBloco 
+Bloco: TagBloco ElemBloco RestoBloco
+    ;
+
+TagBloco: '[' CHAVE ']'
+    ;
+
+RestoBloco: ElemBloco RestoBloco
     | 
     ;
 
-ElemBloco: ChaveValor 
+ElemBloco: ChaveValor
     | Bloco 
     ;
 
 ChaveValor: CHAVE '=' Valor 
     ;
 
-Valor: Aspas
+Valor: Aspas 
     | VALOR 
-    | Array 
+    | Array
     ;
 
-Array: '[' Elems ']'
+Array: '[' ElsArray ']'
     ;
 
-Elems: Valor OutrosElems 
+ElsArray: Valor OutrosElsArray
     | 
     ;
 
-OutrosElems: ',' Valor OutrosElems
-    |
+OutrosElsArray: ',' Valor OutrosElsArray 
+    | 
     ;
 
-Aspas: '"' STRING '"' 
+Aspas: '"' STRING '"'
+    ;
+
 %%
 
 int main(){
