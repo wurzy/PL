@@ -1,44 +1,109 @@
-[^ \n]*{espacos}=[^#\n]*   
+%option noyywrap yylineno
+%x BLOCO SUBBLOCO ASPAS NOMEBLOCO VALORBLOCO ARRAY ESPACOS VALORTITULO INITBLOCO INITCHAVE ASPASBLOCO
+%{
+#include <stdio.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
-Toml: TITLE '=' Aspas Blocos
-    ;
+#define MAXBLOCO 1024
 
-Blocos: Bloco MaisBlocos
-    ;
+int array_atual = 0;
+int newlines = 0;
+int bloco = 0;
+int aspa = 0;
+char *blocos[MAXBLOCO];
 
-MaisBlocos: Bloco MaisBlocos
-    | 
-    ;
+%}
 
-Bloco: ElemBloco RestoBloco
-    ;
+digito    [0-9]
+acentos   \xc3[\x80-\xbf]           
+letra     [a-zA-Z]|{acentos}       
+palavra   {letra}+  
+espacos   [ ]*  
 
-RestoBloco: ElemBloco RestoBloco
-    | 
-    ;
+%%
 
-ElemBloco: ChaveValor
-    | Bloco 
-    ;
+<*>title{espacos}                               {BEGIN VALORTITULO; return TITLE;}
+<*>^/\[                                         {
+                                                  if(newlines>=2){
+                                                    newlines = 0;
+                                                    return NEWLINE2;
+                                                  }
+                                                  BEGIN INITBLOCO;
+                                                }
+<*>#.*                                          {}
+<*>\n                                           {newlines++;}
 
-ChaveValor: CHAVE '=' Valor 
-    ;
+<INITBLOCO>\[                                   {BEGIN NOMEBLOCO; return APAR;}
 
-Valor: Aspas 
-    | VALOR 
-    | Array
-    ;
+<NOMEBLOCO>[^\]]+                               {
+                                                blocos[bloco] = strdup(yytext);
+                                                bloco++;
+                                                return chave;  
+                                                }
+<NOMEBLOCO>\]                                   {return FPAR;}
+<NOMEBLOCO>\n                                   {BEGIN BLOCO; return NEWLINE;}                                                                          
 
-Array: '[' ElsArray ']'
-    ;
+<BLOCO>/[a-z][^ \n\t]*                          {newlines = 0; BEGIN INITCHAVE; return NEWLINE;}
+<BLOCO>\n                                       {newlines++;}
 
-ElsArray: Valor OutrosElsArray
-    | 
-    ;
+<INITCHAVE>[a-z][^ \n\t]*                       {BEGIN VALORBLOCO; return chave;}
 
-OutrosElsArray: ',' Valor OutrosElsArray 
-    | 
-    ;
+<VALORTITULO>{espacos}=                         {return IGUAL;}
+<VALORTITULO>{espacos}\"                        {
+                                                  if(aspa==0){
+                                                    aspa++;
+                                                  }
+                                                  else {
+                                                    aspa--;
+                                                    BEGIN 0;
+                                                  } 
+                                                  return ASPA;
+                                                }
+<VALORTITULO>[^"]*                              {return string;}
 
-Aspas: '"' STRING '"'
-    ;
+<VALORBLOCO>{espacos}=                          {return IGUAL;}
+<VALORBLOCO>{espacos}\"                         {BEGIN ASPASBLOCO; return ASPA;}
+<VALORBLOCO>{espacos}\[                         {BEGIN ESPACOS; return APAR;}
+<VALORBLOCO>{espacos}                           {BEGIN VALOR;}
+
+<VALOR>[^ \t\n\r#]+                             {BEGIN BLOCO; return valor;} 
+
+<ASPASBLOCO>\"                                  {BEGIN BLOCO; return ASPA;}
+<ASPASBLOCO>[^"]*                               {return string; }
+
+<ARRAY>{espacos},                               {BEGIN ESPACOS; return VIRG;}
+<ARRAY>[^,\] \n\t\r]+                           {return valor;}
+<ARRAY>\]                                       {
+                                                  if(array_atual==0){
+                                                    BEGIN BLOCO; 
+                                                  }
+                                                  else {
+                                                    array_atual--;
+                                                    BEGIN ESPACOS;
+                                                  }
+                                                  return FPAR;
+                                                }
+<ARRAY>{espacos}\n                              {return NEWLINE;}
+
+<ASPASARRAY>\"                                  {BEGIN ARRAY; return ASPA;}
+<ASPASARRAY>[^"]*                               {return string; }
+
+<ESPACOS>{espacos}                              {BEGIN ARRAY;}
+<ESPACOS>{espacos}\"                            {BEGIN ASPASARRAY; return ASPA;}
+<ESPACOS>{espacos}\n                            {return NEWLINE;}
+<ESPACOS>{espacos}\[                            {array_atual++;}
+
+<*>.                                            {}
+
+%% 
+
+int main(){
+    for (int i = 0; i < MAXBLOCO; i++)
+		  blocos[i] = NULL;
+    
+    yylex();
+    return 0;
+}

@@ -58,14 +58,14 @@ Aspas: ASPA string ASPA       {printf("Sou aspas\n");}
 
 %%
 
-int yylex(){
-   return getchar();
-}
-
 int main(){
+    ///for (int i = 0; i < MAXBLOCO; i++)
+	//	  blocos[i] = NULL;
+    
     yyparse();
     return 0;
 }
+
 
 int yyerror(char* s){
    printf("erro: %s\n",s);

@@ -1,6 +1,4 @@
-
-#a=calculadora
-a=calc3
+a=tp2
 
 $a : $a.y $a.l
 	flex $a.l
