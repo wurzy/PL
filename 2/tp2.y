@@ -34,6 +34,7 @@ TagBloco: '[' CHAVE ']'
     ;
 
 ChaveValor: CHAVE '=' Valor
+    ;
 
 Valor: Aspas 
     | VALOR 
