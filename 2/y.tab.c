@@ -435,8 +435,8 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    15,    15,    18,    19,    22,    25,    26,    29,    30,
-      33,    36,    38,    39,    40,    43,    44,    45,    46,    47,
-      50,    51,    52,    55
+      33,    36,    39,    40,    41,    44,    45,    46,    47,    48,
+      51,    52,    53,    56
 };
 #endif
 
@@ -1231,7 +1231,7 @@ yyreduce:
   switch (yyn)
     {
         case 23:
-#line 55 "tp2.y" /* yacc.c:1646  */
+#line 56 "tp2.y" /* yacc.c:1646  */
     {printf("Sou aspas\n");}
 #line 1237 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -1465,7 +1465,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 58 "tp2.y" /* yacc.c:1906  */
+#line 59 "tp2.y" /* yacc.c:1906  */
 
 
 int yylex(){

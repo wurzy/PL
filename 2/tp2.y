@@ -8,11 +8,11 @@ int yyerror(char* s);
 
 %}
 
-%token TITLE VALOR CHAVE STRING NEWLINE NEWLINE2
+%token TITLE valor chave string NEWLINE NEWLINE2 ASPA IGUAL APAR FPAR VIRG
 
 %%
 
-Toml: TITLE '=' Aspas NEWLINE2 Blocos
+Toml: TITLE IGUAL Aspas NEWLINE2 Blocos
     ;
 
 Blocos: Blocos NEWLINE2 Bloco
@@ -30,30 +30,30 @@ ElemBloco: ChaveValor
     | Bloco 
     ;
 
-TagBloco: '[' CHAVE ']'
+TagBloco: APAR chave FPAR
     ;
 
-ChaveValor: CHAVE '=' Valor
+ChaveValor: chave IGUAL Valor
     ;
 
 Valor: Aspas 
-    | VALOR 
+    | valor 
     | Array
     ;
 
-Array: '[' ElsArray ']'
-    | '[' ']'
-    | '[' NEWLINE ElsArray ']'
-    | '[' NEWLINE ElsArray NEWLINE ']'
-    | '[' ElsArray NEWLINE ']'
+Array: APAR ElsArray FPAR
+    | APAR FPAR 
+    | APAR NEWLINE ElsArray FPAR 
+    | APAR NEWLINE ElsArray NEWLINE FPAR 
+    | APAR ElsArray NEWLINE FPAR 
     ;
 
-ElsArray: ElsArray ',' Valor
-    | ElsArray ',' NEWLINE Valor
+ElsArray: ElsArray VIRG Valor
+    | ElsArray VIRG NEWLINE Valor
     | Valor
     ;
 
-Aspas: '\"' '.' '\"'       {printf("Sou aspas\n");}
+Aspas: ASPA string ASPA       {printf("Sou aspas\n");}
     ;
 
 %%

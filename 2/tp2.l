@@ -1,5 +1,5 @@
 %option noyywrap yylineno
-%x BLOCO SUBBLOCO ASPAS NOMEBLOCO VALOR ARRAY ESPACOS
+%x BLOCO SUBBLOCO ASPAS NOMEBLOCO VALORBLOCO ARRAY ESPACOS VALORTITULO INITBLOCO
 %{
 #include <stdio.h>
 #include <sys/stat.h>
@@ -9,7 +9,10 @@
 
 #define MAXBLOCO 1024
 
+int c_atual = 0;
+int newlines = 0;
 int bloco = 0;
+int aspa = 0;
 char *blocos[MAXBLOCO];
 
 %}
@@ -22,46 +25,70 @@ espacos   [ ]*
 
 %%
 
-<*>title{espacos}=                              {printf("TITLE:%s\n",yytext);BEGIN VALOR;}
-<*>^{espacos}\[                                           {BEGIN NOMEBLOCO;}
-<*>#.*\n                                        {printf("COMMENT:%s",yytext);}
+<*>title{espacos}                               {BEGIN VALORTITULO; return TITLE;}
+<*>^/\[                                         {
+                                                  if(newlines>=2){
+                                                    newlines = 0;
+                                                    return NEWLINE2;
+                                                  }
+                                                  BEGIN INITBLOCO;
+                                                }
+<*>#.*                                          {}
+<*>\n                                           {newlines++;}
 
-<NOMEBLOCO>[^]]*\]                              {
-                                                yytext[yyleng-1] = '\0';
-                                                printf("NOMEBLOCO:%s\n",yytext);
+<INITBLOCO>\[                                   {BEGIN NOMEBLOCO; return APAR;}
+
+<NOMEBLOCO>[^\]]+                               {
                                                 blocos[bloco] = strdup(yytext);
                                                 bloco++;
-                                                BEGIN BLOCO;   
-                                                }                                 
-
-<BLOCO>[^ \n]*{espacos}=                        {
-                                                yytext[yyleng-1] = '\0';
-                                                printf("KEY:%s\n",yytext);
-                                                BEGIN VALOR;}
-<BLOCO>\n\n                                     {
-                                                free(blocos[bloco]);
-                                                bloco--; 
-                                                if(bloco==0) BEGIN 0;
+                                                return chave;  
                                                 }
+<NOMEBLOCO>\]                                   {return FPAR;}
+<NOMEBLOCO>\n                                   {BEGIN BLOCO; return NEWLINE;}                                                                          
 
-<VALOR>{espacos}\[                              {BEGIN ESPACOS;}
-<VALOR>[^[\n]*\n                                {printf("VALOR:%s\n",yytext); BEGIN BLOCO;}
+<BLOCO>[a-z][^ \n\t]*                           {BEGIN VALORBLOCO; return chave;}
+<BLOCO>\n\n                                     {BEGIN 0; return NEWLINE2;}
+<BLOCO>\n                                       {return NEWLINE;}
+
+<VALORTITULO>{espacos}=                         {return IGUAL;}
+<VALORTITULO>{espacos}\"                        {
+                                                  if(aspa==0){
+                                                    aspa++;
+                                                  }
+                                                  else {
+                                                    aspa--;
+                                                    BEGIN 0;
+                                                  } 
+                                                  return ASPA;
+                                                }
+<VALORTITULO>[^"]*                              {return string;}
+
+<VALORBLOCO>{espacos}=                          {return IGUAL;}
+<VALORBLOCO>{espacos}\"                         {BEGIN ASPAS; return ASPA;}
+<VALORBLOCO>{espacos}\[                         {BEGIN ESPACOS; return APAR;}
+<VALORBLOCO>{espacos}                           {BEGIN VALOR;}
+
+<VALOR>[^ \t\n#]+                               {BEGIN BLOCO; return valor;} 
+
+<ASPAS>\"                                       {BEGIN BLOCO; return ASPA;}
+<ASPAS>[^"]*                                    {return string; }
+
+<ARRAY>,                                        {BEGIN ESPACOS; return VIRG;}
+<ARRAY>[^,\]\n]+                                {return valor;}
+<ARRAY>\]                                       {BEGIN BLOCO; return FPAR;}
+
+<ESPACOS>{espacos}/\"                           {}
+<ESPACOS>{espacos}/\[                           {}
+<ESPACOS>{espacos}                              {}
 
 
-<ARRAY>,                                        {BEGIN ESPACOS;}
-<ARRAY>[^,\]\n]*                                {printf("Elem:%s",yytext);}
-<ARRAY>\]                                       {printf("\n");BEGIN BLOCO;}
-
-<ESPACOS>{espacos}                              {BEGIN ARRAY;}
-
-
-<*>\n                                           {}
+<*>.                                            {}
 
 %% 
 
 int main(){
     for (int i = 0; i < MAXBLOCO; i++)
-		blocos[i] = NULL;
+		  blocos[i] = NULL;
     
     yylex();
     return 0;
