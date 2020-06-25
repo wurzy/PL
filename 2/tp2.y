@@ -1,6 +1,6 @@
 %{
- int yylex();
- void yyerror(char*);
+int yylex();
+void yyerror(char*);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +16,7 @@ Toml: TITLE '=' Aspas Blocos
     ;
 
 Blocos: Blocos Bloco
-    |
+    | 
     ;
 
 Bloco: TagBloco ElsBloco
@@ -29,11 +29,8 @@ ElsBloco: ElsBloco ElemBloco
     | ElemBloco
     ;
 
-ElemBloco: ChaveValor
+ElemBloco: CHAVE '=' Valor 
     | Bloco 
-    ;
-
-ChaveValor: CHAVE '=' Valor 
     ;
 
 Valor: Aspas 
@@ -42,14 +39,11 @@ Valor: Aspas
     ;
 
 Array: '[' ElsArray ']'
+    | '[' ']'
     ;
 
-ElsArray: Valor OutrosElsArray
-    | 
-    ;
-
-OutrosElsArray: ',' Valor OutrosElsArray 
-    | 
+ElsArray: ElsArray ',' Valor
+    | Valor
     ;
 
 Aspas: '"' STRING '"'
