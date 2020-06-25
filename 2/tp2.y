@@ -1,6 +1,6 @@
 %{
 int yylex();
-void yyerror(char*);
+int yyerror(char* s);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,22 +42,31 @@ Valor: Aspas
 
 Array: '[' ElsArray ']'
     | '[' ']'
+    | '[' NEWLINE ElsArray ']'
+    | '[' NEWLINE ElsArray NEWLINE ']'
+    | '[' ElsArray NEWLINE ']'
     ;
 
 ElsArray: ElsArray ',' Valor
+    | ElsArray ',' NEWLINE Valor
     | Valor
     ;
 
-Aspas: '"' STRING '"'
+Aspas: '\"' '.' '\"'       {printf("Sou aspas\n");}
     ;
 
 %%
+
+int yylex(){
+   return getchar();
+}
 
 int main(){
     yyparse();
     return 0;
 }
 
-void yyerror(char* s){
-   printf("ERRO\n");
+int yyerror(char* s){
+   printf("erro: %s\n",s);
 }
+
