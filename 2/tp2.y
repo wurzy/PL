@@ -8,30 +8,32 @@ void yyerror(char*);
 
 %}
 
-%token TITLE VALOR CHAVE STRING 
+%token TITLE VALOR CHAVE STRING NEWLINE NEWLINE2
 
 %%
 
-Toml: TITLE '=' Aspas Blocos
+Toml: TITLE '=' Aspas NEWLINE2 Blocos
     ;
 
-Blocos: Blocos Bloco
+Blocos: Blocos NEWLINE2 Bloco
     | 
     ;
 
-Bloco: TagBloco ElsBloco
+Bloco: TagBloco NEWLINE ElsBloco NEWLINE2
+    ;
+
+ElsBloco: ElsBloco NEWLINE ElemBloco
+    | ElemBloco
+    ;
+
+ElemBloco: ChaveValor
+    | Bloco 
     ;
 
 TagBloco: '[' CHAVE ']'
     ;
 
-ElsBloco: ElsBloco ElemBloco
-    | ElemBloco
-    ;
-
-ElemBloco: CHAVE '=' Valor 
-    | Bloco 
-    ;
+ChaveValor: CHAVE '=' Valor
 
 Valor: Aspas 
     | VALOR 
