@@ -10,12 +10,12 @@ int yyerror(char* s);
 
 %}
 
-%token TITLE valor chave string NEWLINE2 
+%token TITLE valor chave string NEWLINE2 FIM
 %union{ 
 	char* s;
 }
 
-%type <s> TITLE valor chave string NEWLINE2 
+%type <s> TITLE valor chave string NEWLINE2 FIM
 %type <s> Toml Blocos Bloco ElsBloco ElemBloco TagBloco ChaveValor Valor Array ElsArray Aspas
 
 %%

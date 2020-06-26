@@ -674,10 +674,11 @@ char *yytext;
 int newlines = 0;
 int bloco = 0;
 int aspa = 0;
+static int counter = 0;
 //char *blocos[MAXBLOCO];
 
-#line 680 "lex.yy.c"
 #line 681 "lex.yy.c"
+#line 682 "lex.yy.c"
 
 #define INITIAL 0
 #define BLOCO 1
@@ -910,10 +911,10 @@ YY_DECL
 		}
 
 	{
-#line 26 "tp2.l"
+#line 27 "tp2.l"
 
 
-#line 917 "lex.yy.c"
+#line 918 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1005,23 +1006,23 @@ do_action:	/* This label is used only to access EOF actions. */
 	{ /* beginning of action switch */
 case 1:
 YY_RULE_SETUP
-#line 28 "tp2.l"
+#line 29 "tp2.l"
 {BEGIN VALORTITULO; return TITLE;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 29 "tp2.l"
+#line 30 "tp2.l"
 {}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 31 "tp2.l"
+#line 32 "tp2.l"
 {newlines = 0; return '[';}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 32 "tp2.l"
-{printf("ola %s\n", yytext);
+#line 33 "tp2.l"
+{
                                                   //blocos[bloco] = strdup(yytext);
                                                   bloco++;
                                                   yylval.s = strdup(yytext);
@@ -1030,24 +1031,24 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 38 "tp2.l"
+#line 39 "tp2.l"
 {return ']';}
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 39 "tp2.l"
+#line 40 "tp2.l"
 {BEGIN BLOCO; return '\n';}                                                                        
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 41 "tp2.l"
+#line 42 "tp2.l"
 {newlines = 0; BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 42 "tp2.l"
+#line 43 "tp2.l"
 {
                                                   BEGIN 0;
                                                   bloco--;
@@ -1057,22 +1058,22 @@ YY_RULE_SETUP
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 47 "tp2.l"
+#line 48 "tp2.l"
 {}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 48 "tp2.l"
+#line 49 "tp2.l"
 {BEGIN NOMEBLOCO; return '[';}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 50 "tp2.l"
+#line 51 "tp2.l"
 {return '=';}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 51 "tp2.l"
+#line 52 "tp2.l"
 {
                                                   if(aspa==0){
                                                     aspa++;
@@ -1086,91 +1087,91 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 61 "tp2.l"
+#line 62 "tp2.l"
 {yylval.s = strdup(yytext); return string;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 63 "tp2.l"
+#line 64 "tp2.l"
 {return '=';}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 64 "tp2.l"
+#line 65 "tp2.l"
 {BEGIN ASPASBLOCO; return '\"';}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 65 "tp2.l"
+#line 66 "tp2.l"
 {BEGIN ESPACOS; return '[';}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 66 "tp2.l"
+#line 67 "tp2.l"
 {BEGIN VALOR;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 68 "tp2.l"
+#line 69 "tp2.l"
 {BEGIN BLOCO; yylval.s = strdup(yytext); return valor;} 
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 70 "tp2.l"
+#line 71 "tp2.l"
 {BEGIN BLOCO; return '\"';}
 	YY_BREAK
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 71 "tp2.l"
+#line 72 "tp2.l"
 {yylval.s = strdup(yytext); return string; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 73 "tp2.l"
+#line 74 "tp2.l"
 {BEGIN ESPACOS; return ',';}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 74 "tp2.l"
+#line 75 "tp2.l"
 {yylval.s = strdup(yytext); return valor;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 75 "tp2.l"
+#line 76 "tp2.l"
 {BEGIN BLOCO; return ']';}
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 76 "tp2.l"
+#line 77 "tp2.l"
 {return '\n';}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 78 "tp2.l"
+#line 79 "tp2.l"
 {BEGIN ARRAY; return '\"';}
 	YY_BREAK
 case 26:
 /* rule 26 can match eol */
 YY_RULE_SETUP
-#line 79 "tp2.l"
+#line 80 "tp2.l"
 {yylval.s = strdup(yytext); return string; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 81 "tp2.l"
+#line 82 "tp2.l"
 {BEGIN ARRAY;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 82 "tp2.l"
+#line 83 "tp2.l"
 {BEGIN ASPASARRAY; return '\"';}
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 83 "tp2.l"
+#line 84 "tp2.l"
 {return '\n';}
 	YY_BREAK
 case 30:
@@ -1180,7 +1181,7 @@ YY_LINENO_REWIND_TO(yy_bp + 1);
 (yy_c_buf_p) = yy_cp = yy_bp + 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 85 "tp2.l"
+#line 86 "tp2.l"
 {
                                                   BEGIN NOMEBLOCO;
                                                   if(newlines!=-1){
@@ -1195,7 +1196,7 @@ YY_RULE_SETUP
 case 31:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-#line 96 "tp2.l"
+#line 97 "tp2.l"
 { 
                                                   if(newlines!=-1){
                                                     newlines++; 
@@ -1217,20 +1218,20 @@ case YY_STATE_EOF(ESPACOS):
 case YY_STATE_EOF(VALORTITULO):
 case YY_STATE_EOF(ASPASBLOCO):
 case YY_STATE_EOF(ASPASARRAY):
-#line 105 "tp2.l"
+#line 107 "tp2.l"
 {return NEWLINE2;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 106 "tp2.l"
+#line 108 "tp2.l"
 {}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 108 "tp2.l"
+#line 110 "tp2.l"
 ECHO;
 	YY_BREAK
-#line 1234 "lex.yy.c"
+#line 1235 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2218,7 +2219,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 108 "tp2.l"
+#line 110 "tp2.l"
 
 
 

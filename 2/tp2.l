@@ -13,6 +13,7 @@
 int newlines = 0;
 int bloco = 0;
 int aspa = 0;
+static int counter = 0;
 //char *blocos[MAXBLOCO];
 
 %}
@@ -29,7 +30,7 @@ espacos   [ ]*
 <*>#.*                                          {}
 
 <NOMEBLOCO>\[                                   {newlines = 0; return '[';}
-<NOMEBLOCO>[^\]\[\n]+                           {printf("ola %s\n", yytext);
+<NOMEBLOCO>[^\]\[\n]+                           {
                                                   //blocos[bloco] = strdup(yytext);
                                                   bloco++;
                                                   yylval.s = strdup(yytext);
@@ -102,6 +103,7 @@ espacos   [ ]*
                                                     return NEWLINE2;
                                                   }
                                                 }
+
 <*><<EOF>>                                      {return NEWLINE2;}
 <*>.                                            {}
 

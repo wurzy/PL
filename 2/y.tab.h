@@ -49,7 +49,8 @@ extern int yydebug;
     valor = 259,
     chave = 260,
     string = 261,
-    NEWLINE2 = 262
+    NEWLINE2 = 262,
+    FIM = 263
   };
 #endif
 /* Tokens.  */
@@ -58,6 +59,7 @@ extern int yydebug;
 #define chave 260
 #define string 261
 #define NEWLINE2 262
+#define FIM 263
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -68,7 +70,7 @@ union YYSTYPE
  
 	char* s;
 
-#line 72 "y.tab.h" /* yacc.c:1909  */
+#line 74 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
