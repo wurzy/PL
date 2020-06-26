@@ -103,6 +103,7 @@ espacos   [ ]*
                                                   }
                                                 }
 
+<BLOCO>{espacos}[a-z][^ \n\t\r\]]*              {BEGIN VALORBLOCO; return chave;}
 <<EOF>>                                         {printf("ola\n"); return '$';}                                        
 <*>.                                            {}
 
