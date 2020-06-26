@@ -8,52 +8,58 @@ int yyerror(char* s);
 
 %}
 
-%token TITLE valor chave string NEWLINE NEWLINE2 ASPA IGUAL APAR FPAR VIRG
+%token TITLE valor chave string NEWLINE2
+%union{ 
+    char c;
+	char* s;
+}
+
+%type <s> TITLE valor chave string NEWLINE2
 
 %%
 
-Toml: TITLE IGUAL Aspas NEWLINE2 Blocos
+Toml: TITLE '=' Aspas NEWLINE2 Blocos '$'    {printf("0\n");}
     ;
 
-Blocos: Blocos NEWLINE2 Bloco
-    | 
+Blocos: Blocos Bloco                       {printf("1.1\n");}
+    |                                      {printf("1.2\n");}
     ;
 
-Bloco: TagBloco NEWLINE ElsBloco NEWLINE2
+Bloco: TagBloco '\n' ElsBloco NEWLINE2      {printf("aaaaaaaaaaaaaa\n");}
     ;
 
-ElsBloco: ElsBloco NEWLINE ElemBloco
-    | ElemBloco
+ElsBloco: ElsBloco '\n' ElemBloco           {printf("4.1\n");}
+    | ElemBloco                             {printf("4.2\n");}
     ;
 
-ElemBloco: ChaveValor
-    | Bloco 
+ElemBloco: ChaveValor                       {printf("5.1\n");}
+    | Bloco                                 {printf("5.2\n");}
+    ;   
+
+TagBloco: '[' chave ']'                     {printf("3\n");}
     ;
 
-TagBloco: APAR chave FPAR
+ChaveValor: chave '=' Valor               {printf("6\n");}
     ;
 
-ChaveValor: chave IGUAL Valor
+Valor: Aspas                                {printf("7.1\n");}
+    | valor                                 {printf("7.2\n");}
+    | Array                                 {printf("7.3\n");}
     ;
 
-Valor: Aspas 
-    | valor 
-    | Array
+Array: '[' ElsArray ']'                   {printf("8.1\n");} 
+    | '[' ']'                             {printf("8.2\n");} 
+    | '[' '\n' ElsArray ']'            {printf("8.3\n");} 
+    | '[' '\n' ElsArray '\n' ']'    {printf("8.4\n");} 
+    | '[' ElsArray '\n' ']'            {printf("8.5\n");} 
     ;
 
-Array: APAR ElsArray FPAR
-    | APAR FPAR 
-    | APAR NEWLINE ElsArray FPAR 
-    | APAR NEWLINE ElsArray NEWLINE FPAR 
-    | APAR ElsArray NEWLINE FPAR 
+ElsArray: ElsArray ',' Valor               {printf("9.1\n");} 
+    | ElsArray ',' '\n' Valor           {printf("9.2\n");} 
+    | Valor                                 {printf("9.3\n");} 
     ;
 
-ElsArray: ElsArray VIRG Valor
-    | ElsArray VIRG NEWLINE Valor
-    | Valor
-    ;
-
-Aspas: ASPA string ASPA       {printf("Sou aspas\n");}
+Aspas: '\"' string '\"'                     {printf("10\n");}   
     ;
 
 %%
@@ -68,6 +74,8 @@ int main(){
 
 
 int yyerror(char* s){
-   printf("erro: %s\n",s);
+    extern int yylineno;
+    extern char* yytext;
+    fprintf(stderr, "Linha %d: %s (%s)\n",yylineno,s,yytext);
 }
 

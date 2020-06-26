@@ -1,5 +1,5 @@
 %option noyywrap yylineno
-%x BLOCO SUBBLOCO NOMEBLOCO VALORBLOCO VALOR ARRAY ESPACOS VALORTITULO INITBLOCO INITCHAVE ASPASBLOCO ASPASARRAY
+%x BLOCO SUBBLOCO NOMEBLOCO VALORBLOCO VALOR ARRAY ESPACOS VALORTITULO ASPASBLOCO ASPASARRAY
 %{
 #include <stdio.h>
 #include <sys/stat.h>
@@ -26,32 +26,33 @@ espacos   [ ]*
 %%
 
 <*>title{espacos}                               {BEGIN VALORTITULO; return TITLE;}
-<*>/\[                                 {
-                                                  if(newlines>=2){
-                                                    newlines = 0;
-                                                    return NEWLINE2;
-                                                  }
-                                                  BEGIN INITBLOCO;
-                                                }
 <*>#.*                                          {}
-<*>\n                                           {newlines++;}
 
-<INITBLOCO>\[                                   {BEGIN NOMEBLOCO; return APAR;}
-
-<NOMEBLOCO>[^\]]+                               {
+<NOMEBLOCO>\[                                   {return '[';}
+<NOMEBLOCO>[^\]\[\n]+                           {
                                                 //blocos[bloco] = strdup(yytext);
                                                 bloco++;
                                                 return chave;  
                                                 }
-<NOMEBLOCO>\]                                   {return FPAR;}
-<NOMEBLOCO>\n                                   {BEGIN BLOCO; return NEWLINE;}                                                                          
+<NOMEBLOCO>\]                                   {return ']';}
+<NOMEBLOCO>{espacos}\n/\[?                      {BEGIN BLOCO; return '\n';}                                                                        
 
-<BLOCO>/[a-z][^ \n\t]*                 {newlines = 0; BEGIN INITCHAVE; return NEWLINE;}
-<BLOCO>\n                                       {newlines++;}
+<BLOCO>{espacos}[a-z][^ \n\t\r]*                  {newlines = 0; BEGIN VALORBLOCO; return chave;}
+<BLOCO>{espacos}\n{espacos}/(\n|#)              {
+                                                  BEGIN 0;
+                                                  bloco--;
+                                                  printf("bloco acabado\n");
+                                                  if(bloco > 0){
+                                                    return '\n';
+                                                  }
+                                                  else {
+                                                    newlines++;
+                                                  } 
+                                                }  
+<BLOCO>{espacos}\n                              {return '\n';}
+<BLOCO>\[                                       {BEGIN NOMEBLOCO; return '[';}
 
-<INITCHAVE>[a-z][^ \n\t]*                       {BEGIN VALORBLOCO; return chave;}
-
-<VALORTITULO>{espacos}=                         {return IGUAL;}
+<VALORTITULO>{espacos}=                         {return '=';}
 <VALORTITULO>{espacos}\"                        {
                                                   if(aspa==0){
                                                     aspa++;
@@ -60,32 +61,49 @@ espacos   [ ]*
                                                     aspa--;
                                                     BEGIN 0;
                                                   } 
-                                                  return ASPA;
+                                                  return '\"';
                                                 }
-<VALORTITULO>[^"]*                              {return string;}
+<VALORTITULO>[^"=\n]*                           {return string;}
 
-<VALORBLOCO>{espacos}=                          {return IGUAL;}
-<VALORBLOCO>{espacos}\"                         {BEGIN ASPASBLOCO; return ASPA;}
-<VALORBLOCO>{espacos}\[                         {BEGIN ESPACOS; return APAR;}
+<VALORBLOCO>{espacos}=                          {return '=';}
+<VALORBLOCO>{espacos}\"                         {BEGIN ASPASBLOCO; return '\"';}
+<VALORBLOCO>{espacos}\[                         {BEGIN ESPACOS; return '[';}
 <VALORBLOCO>{espacos}                           {BEGIN VALOR;}
 
 <VALOR>[^ \t\n\r#]+                             {BEGIN BLOCO; return valor;} 
 
-<ASPASBLOCO>\"                                  {BEGIN BLOCO; return ASPA;}
+<ASPASBLOCO>\"                                  {BEGIN BLOCO; return '\"';}
 <ASPASBLOCO>[^"]*                               {return string; }
 
-<ARRAY>{espacos},                               {BEGIN ESPACOS; return VIRG;}
+<ARRAY>{espacos},                               {BEGIN ESPACOS; return ',';}
 <ARRAY>[^,\] \n\t\r]+                           {return valor;}
-<ARRAY>\]                                       {BEGIN BLOCO; return FPAR;}
-<ARRAY>{espacos}\n                              {return NEWLINE;}
+<ARRAY>\]                                       {BEGIN BLOCO; return ']';}
+<ARRAY>{espacos}\n                              {return '\n';}
 
-<ASPASARRAY>\"                                  {BEGIN ARRAY; return ASPA;}
+<ASPASARRAY>\"                                  {BEGIN ARRAY; return '\"';}
 <ASPASARRAY>[^"]*                               {return string; }
 
 <ESPACOS>{espacos}                              {BEGIN ARRAY;}
-<ESPACOS>{espacos}\"                            {BEGIN ASPASARRAY; return ASPA;}
-<ESPACOS>{espacos}\n                            {return NEWLINE;}
+<ESPACOS>{espacos}\"                            {BEGIN ASPASARRAY; return '\"';}
+<ESPACOS>{espacos}\n                            {return '\n';}
 
+<*>\n/\[                                        {
+                                                  BEGIN NOMEBLOCO;
+                                                  if(bloco == 0){
+                                                    newlines++;
+                                                  }
+                                                  if(newlines >= 2){
+                                                    newlines = 0;
+                                                    return NEWLINE2;
+                                                  }
+                                                }
+<*>\n                                           {
+                                                  if(bloco == 0){
+                                                    newlines++;
+                                                  }
+                                                }
+
+<<EOF>>                                         {printf("ola\n"); return '$';}                                        
 <*>.                                            {}
 
 %% 

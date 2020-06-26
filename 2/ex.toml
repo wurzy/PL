@@ -1,11 +1,10 @@
 title = "TOML Example"
-#a
 
 [owner]
 name = "Tom Preston-Werner"
 date = 2010-04-23
 time = 21:30:00
-#a
+
 [database]
 server = "192.168.1.1"
 ports = [ 8001, 8001, 8002 ]
@@ -16,6 +15,7 @@ enabled = true
 [servers.alpha]
   ip = "10.0.0.1"
   dc = "eqdc10"
+
 
 [servers.beta]
   ip = "10.0.0.2"

@@ -49,13 +49,7 @@ extern int yydebug;
     valor = 259,
     chave = 260,
     string = 261,
-    NEWLINE = 262,
-    NEWLINE2 = 263,
-    ASPA = 264,
-    IGUAL = 265,
-    APAR = 266,
-    FPAR = 267,
-    VIRG = 268
+    NEWLINE2 = 262
   };
 #endif
 /* Tokens.  */
@@ -63,17 +57,22 @@ extern int yydebug;
 #define valor 259
 #define chave 260
 #define string 261
-#define NEWLINE 262
-#define NEWLINE2 263
-#define ASPA 264
-#define IGUAL 265
-#define APAR 266
-#define FPAR 267
-#define VIRG 268
+#define NEWLINE2 262
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+
+union YYSTYPE
+{
+#line 12 "tp2.y" /* yacc.c:1909  */
+ 
+    char c;
+	char* s;
+
+#line 73 "y.tab.h" /* yacc.c:1909  */
+};
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
