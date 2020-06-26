@@ -1,6 +1,8 @@
 %{
 int yylex();
 int yyerror(char* s);
+
+#define _GNU_SOURCE 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,58 +10,58 @@ int yyerror(char* s);
 
 %}
 
-%token TITLE valor chave string NEWLINE2
+%token TITLE valor chave string NEWLINE2 
 %union{ 
-    char c;
 	char* s;
 }
 
-%type <s> TITLE valor chave string NEWLINE2
+%type <s> TITLE valor chave string NEWLINE2 
+%type <s> Toml Blocos Bloco ElsBloco ElemBloco TagBloco ChaveValor Valor Array ElsArray Aspas
 
 %%
 
-Toml: TITLE '=' Aspas NEWLINE2 Blocos '$'    {printf("0\n");}
+Toml: TITLE '=' Aspas NEWLINE2 Blocos       {printf("{\n  \"title\": %s,\n%s}",$3,$5);}
     ;
 
-Blocos: Blocos Bloco                       {printf("1.1\n");}
-    |                                      {printf("1.2\n");}
+Blocos: Blocos Bloco                        {asprintf(&$$,"%s  %s",$1,$2);}
+    |                                       {}
     ;
 
-Bloco: TagBloco '\n' ElsBloco NEWLINE2      {printf("aaaaaaaaaaaaaa\n");}
+Bloco: TagBloco '\n' ElsBloco NEWLINE2      {asprintf(&$$,"%s%s  },\n",$1,$3);}
     ;
 
-ElsBloco: ElsBloco '\n' ElemBloco           {printf("4.1\n");}
-    | ElemBloco                             {printf("4.2\n");}
+ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s    %s",$1,$2);}
+    | ElemBloco                             {asprintf(&$$,"    %s",$1);}
     ;
 
-ElemBloco: ChaveValor                       {printf("5.1\n");}
-    | Bloco                                 {printf("5.2\n");}
+ElemBloco: ChaveValor                       {asprintf(&$$,"  %s",$1);}
+    | Bloco                                 {asprintf(&$$,"  %s",$1);}
     ;   
 
-TagBloco: '[' chave ']'                     {printf("3\n");}
+TagBloco: '[' chave ']'                     {asprintf(&$$,"\"%s\": {\n",$2);}
     ;
 
-ChaveValor: chave '=' Valor               {printf("6\n");}
+ChaveValor: chave '=' Valor                 {asprintf(&$$,"\"%s\": %s,\n",$1,$3);}
     ;
 
-Valor: Aspas                                {printf("7.1\n");}
-    | valor                                 {printf("7.2\n");}
-    | Array                                 {printf("7.3\n");}
+Valor: Aspas                                {asprintf(&$$,"%s",$1);}
+    | valor                                 {asprintf(&$$,"%s",$1);}
+    | Array                                 {asprintf(&$$,"%s",$1);}
     ;
 
-Array: '[' ElsArray ']'                   {printf("8.1\n");} 
-    | '[' ']'                             {printf("8.2\n");} 
-    | '[' '\n' ElsArray ']'            {printf("8.3\n");} 
-    | '[' '\n' ElsArray '\n' ']'    {printf("8.4\n");} 
-    | '[' ElsArray '\n' ']'            {printf("8.5\n");} 
+Array: '[' ElsArray ']'                     {asprintf(&$$,"[\n%s\n  ]",$2);} 
+    | '[' ']'                               {asprintf(&$$,"[],\n");} 
+    | '[' '\n' ElsArray ']'                 {asprintf(&$$,"[\n%s\n  ]",$3);} 
+    | '[' '\n' ElsArray '\n' ']'            {asprintf(&$$,"[\n%s\n  ]",$3);} 
+    | '[' ElsArray '\n' ']'                 {asprintf(&$$,"[\n%s\n  ]",$2);} 
     ;
 
-ElsArray: ElsArray ',' Valor               {printf("9.1\n");} 
-    | ElsArray ',' '\n' Valor           {printf("9.2\n");} 
-    | Valor                                 {printf("9.3\n");} 
+ElsArray: ElsArray ',' Valor                {asprintf(&$$,"%s,\n      %s",$1,$3);} 
+    | ElsArray ',' '\n' Valor               {asprintf(&$$,"%s,\n      %s",$1,$4);} 
+    | Valor                                 {asprintf(&$$,"      %s",$1);} 
     ;
 
-Aspas: '\"' string '\"'                     {printf("10\n");}   
+Aspas: '\"' string '\"'                   {asprintf(&$$,"\"%s\"",$2);}   
     ;
 
 %%
