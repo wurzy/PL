@@ -16,7 +16,7 @@ int yyerror(char* s);
 }
 
 %type <s> TITLE valor chave string NEWLINE2 FIM
-%type <s> Toml Blocos Bloco ElsBloco ElemBloco TagBloco ChaveValor Valor Array ElsArray Aspas
+%type <s> Blocos Bloco ElsBloco ElemBloco TagBloco ChaveValor Valor Array ElsArray Aspas
 
 %%
 
