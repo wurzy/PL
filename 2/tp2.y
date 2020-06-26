@@ -61,7 +61,7 @@ ElsArray: ElsArray ',' Valor                {asprintf(&$$,"%s,\n      %s",$1,$3)
     | Valor                                 {asprintf(&$$,"      %s",$1);} 
     ;
 
-Aspas: '\"' string '\"'                   {asprintf(&$$,"\"%s\"",$2);}   
+Aspas: '\"' string '\"'                     {asprintf(&$$,"\"%s\"",$2);}   
     ;
 
 %%
