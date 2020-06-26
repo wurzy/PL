@@ -24,7 +24,7 @@ Toml: TITLE '=' Aspas NEWLINE2 Blocos       {printf("{\n  \"title\": %s,\n%s}",$
     ;
 
 Blocos: Blocos Bloco                        {asprintf(&$$,"%s  %s",$1,$2);}
-    |                                       {}
+    |                                       {$$ = "";}
     ;
 
 Bloco: TagBloco '\n' ElsBloco NEWLINE2      {asprintf(&$$,"%s%s  },\n",$1,$3);}
@@ -34,8 +34,8 @@ ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s    %s",$1,$2);}
     | ElemBloco                             {asprintf(&$$,"    %s",$1);}
     ;
 
-ElemBloco: ChaveValor                       {asprintf(&$$,"  %s",$1);}
-    | Bloco                                 {asprintf(&$$,"  %s",$1);}
+ElemBloco: ChaveValor                       {asprintf(&$$,"%s",$1);}
+    | Bloco                                 {asprintf(&$$,"%s",$1);}
     ;   
 
 TagBloco: '[' chave ']'                     {asprintf(&$$,"\"%s\": {\n",$2);}
@@ -49,11 +49,11 @@ Valor: Aspas                                {asprintf(&$$,"%s",$1);}
     | Array                                 {asprintf(&$$,"%s",$1);}
     ;
 
-Array: '[' ElsArray ']'                     {asprintf(&$$,"[\n%s\n  ]",$2);} 
+Array: '[' ElsArray ']'                     {asprintf(&$$,"[\n%s\n    ]",$2);} 
     | '[' ']'                               {asprintf(&$$,"[],\n");} 
-    | '[' '\n' ElsArray ']'                 {asprintf(&$$,"[\n%s\n  ]",$3);} 
-    | '[' '\n' ElsArray '\n' ']'            {asprintf(&$$,"[\n%s\n  ]",$3);} 
-    | '[' ElsArray '\n' ']'                 {asprintf(&$$,"[\n%s\n  ]",$2);} 
+    | '[' '\n' ElsArray ']'                 {asprintf(&$$,"[\n%s\n    ]",$3);} 
+    | '[' '\n' ElsArray '\n' ']'            {asprintf(&$$,"[\n%s\n    ]",$3);} 
+    | '[' ElsArray '\n' ']'                 {asprintf(&$$,"[\n%s\n    ]",$2);} 
     ;
 
 ElsArray: ElsArray ',' Valor                {asprintf(&$$,"%s,\n      %s",$1,$3);} 

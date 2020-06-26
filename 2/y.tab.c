@@ -1257,7 +1257,7 @@ yyreduce:
 
   case 4:
 #line 27 "tp2.y" /* yacc.c:1646  */
-    {}
+    {(yyval.s) = "";}
 #line 1262 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1281,13 +1281,13 @@ yyreduce:
 
   case 8:
 #line 37 "tp2.y" /* yacc.c:1646  */
-    {asprintf(&(yyval.s),"  %s",(yyvsp[0].s));}
+    {asprintf(&(yyval.s),"%s",(yyvsp[0].s));}
 #line 1286 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
 #line 38 "tp2.y" /* yacc.c:1646  */
-    {asprintf(&(yyval.s),"  %s",(yyvsp[0].s));}
+    {asprintf(&(yyval.s),"%s",(yyvsp[0].s));}
 #line 1292 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1323,7 +1323,7 @@ yyreduce:
 
   case 15:
 #line 52 "tp2.y" /* yacc.c:1646  */
-    {asprintf(&(yyval.s),"[\n%s\n  ]",(yyvsp[-1].s));}
+    {asprintf(&(yyval.s),"[\n%s\n    ]",(yyvsp[-1].s));}
 #line 1328 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1335,19 +1335,19 @@ yyreduce:
 
   case 17:
 #line 54 "tp2.y" /* yacc.c:1646  */
-    {asprintf(&(yyval.s),"[\n%s\n  ]",(yyvsp[-1].s));}
+    {asprintf(&(yyval.s),"[\n%s\n    ]",(yyvsp[-1].s));}
 #line 1340 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
 #line 55 "tp2.y" /* yacc.c:1646  */
-    {asprintf(&(yyval.s),"[\n%s\n  ]",(yyvsp[-2].s));}
+    {asprintf(&(yyval.s),"[\n%s\n    ]",(yyvsp[-2].s));}
 #line 1346 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
 #line 56 "tp2.y" /* yacc.c:1646  */
-    {asprintf(&(yyval.s),"[\n%s\n  ]",(yyvsp[-2].s));}
+    {asprintf(&(yyval.s),"[\n%s\n    ]",(yyvsp[-2].s));}
 #line 1352 "y.tab.c" /* yacc.c:1646  */
     break;
 

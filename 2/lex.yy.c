@@ -1021,7 +1021,7 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 32 "tp2.l"
-{
+{printf("ola %s\n", yytext);
                                                   //blocos[bloco] = strdup(yytext);
                                                   bloco++;
                                                   yylval.s = strdup(yytext);

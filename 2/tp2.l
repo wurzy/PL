@@ -29,7 +29,7 @@ espacos   [ ]*
 <*>#.*                                          {}
 
 <NOMEBLOCO>\[                                   {newlines = 0; return '[';}
-<NOMEBLOCO>[^\]\[\n]+                           {
+<NOMEBLOCO>[^\]\[\n]+                           {printf("ola %s\n", yytext);
                                                   //blocos[bloco] = strdup(yytext);
                                                   bloco++;
                                                   yylval.s = strdup(yytext);
