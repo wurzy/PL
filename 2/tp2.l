@@ -39,7 +39,7 @@ espacos   [ ]*
 <NOMEBLOCO>\]                                   {return ']';}
 <NOMEBLOCO>{espacos}\n{espacos}/\[?             {BEGIN BLOCO; return '\n';}                                                                        
 
-<BLOCO>{espacos}[a-z][^ \n\t\r]*                {newlines = 0; BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
+<BLOCO>[a-z][^ \n\t\r]*                         {newlines = 0; BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
 <BLOCO>{espacos}\n{espacos}/(\n|#)              {
                                                   BEGIN 0;
                                                   bloco--;
@@ -74,14 +74,14 @@ espacos   [ ]*
 <ARRAY>{espacos},                               {BEGIN ESPACOS; return ',';}
 <ARRAY>[^,\] \n\t\r]+                           {yylval.s = strdup(yytext); return valor;}
 <ARRAY>\]                                       {BEGIN BLOCO; return ']';}
-<ARRAY>{espacos}\n                              {return '\n';}
+<ARRAY>{espacos}\n                              {}
 
 <ASPASARRAY>\"                                  {BEGIN ARRAY; return '\"';}
 <ASPASARRAY>[^"]*                               {yylval.s = strdup(yytext); return string; }
 
 <ESPACOS>{espacos}                              {BEGIN ARRAY;}
 <ESPACOS>{espacos}\"                            {BEGIN ASPASARRAY; return '\"';}
-<ESPACOS>{espacos}\n                            {return '\n';}
+<ESPACOS>{espacos}\n                            {}
 
 <*>\n/\[                                        {
                                                   BEGIN NOMEBLOCO;
