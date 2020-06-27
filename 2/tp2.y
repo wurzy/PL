@@ -12,7 +12,7 @@ int yyerror(char* s);
 
 %token TITLE valor chave string NEWLINE2 FIM
 %union{ 
-	char* s;
+    char* s;
 }
 
 %type <s> TITLE valor chave string NEWLINE2 FIM
@@ -20,28 +20,28 @@ int yyerror(char* s);
 
 %%
 
-Toml: TITLE '=' Aspas NEWLINE2 Blocos       {printf("{\n  \"title\": %s,\n%s}",$3,$5);}
+Toml: TITLE '=' Aspas NEWLINE2 Blocos       {printf("{\n  \"title\": %s%s\n}",$3,$5);}
     ;
 
-Blocos: Blocos Bloco                        {asprintf(&$$,"%s  %s",$1,$2);}
+Blocos: Blocos Bloco                        {asprintf(&$$,"%s,\n  %s",$1,$2);}
     |                                       {$$ = "";}
     ;
 
-Bloco: TagBloco '\n' ElsBloco NEWLINE2      {asprintf(&$$,"%s%s  },\n",$1,$3);}
+Bloco: TagBloco '\n' ElsBloco NEWLINE2      {asprintf(&$$,"%s%s\n  }",$1,$3);}
     ;
 
-ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s    %s",$1,$2);}
-    | ElemBloco                             {asprintf(&$$,"    %s",$1);}
+ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s,\n    %s",$1,$2);}
+    | ElemBloco                             {asprintf(&$$,"  %s",$1);}
     ;
 
 ElemBloco: ChaveValor                       {asprintf(&$$,"%s",$1);}
     | Bloco                                 {asprintf(&$$,"%s",$1);}
     ;   
 
-TagBloco: '[' chave ']'                     {asprintf(&$$,"\"%s\": {\n",$2);}
+TagBloco: '[' chave ']'                     {asprintf(&$$,"\"%s\": {\n  ",$2);}
     ;
 
-ChaveValor: chave '=' Valor                 {asprintf(&$$,"\"%s\": %s,\n",$1,$3);}
+ChaveValor: chave '=' Valor                 {asprintf(&$$,"\"%s\": %s",$1,$3);}
     ;
 
 Valor: Aspas                                {asprintf(&$$,"%s",$1);}
@@ -68,7 +68,7 @@ Aspas: '\"' string '\"'                     {asprintf(&$$,"\"%s\"",$2);}
 
 int main(){
     ///for (int i = 0; i < MAXBLOCO; i++)
-	//	  blocos[i] = NULL;
+    //    blocos[i] = NULL;
     
     yyparse();
     return 0;
