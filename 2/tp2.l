@@ -11,6 +11,7 @@
 #define MAXBLOCO 1024
 
 int tokens[3] = {0}; //FIMBLOCO, '[', chave
+int primeiroBloco = 0;
 int bloco = 0;
 int aspaTitulo = 0;
 char *blocos[MAXBLOCO];
@@ -34,7 +35,6 @@ espacos   [ ]*
     case 2: {yylval.s = strdup(blocos[bloco-1]); return chave;}
   }
 
-<*>title{espacos}                               {BEGIN VALORTITULO; return TITLE;}
 <*>#.*                                          {}
 
 <NOMEBLOCO>\[                                   {tokens[1] = 1;}
@@ -96,10 +96,23 @@ espacos   [ ]*
                                                     bloco = 0;
                                                     return FIMBLOCO;
                                                   }
+                                                  else if (primeiroBloco == 0) {
+                                                    primeiroBloco = 1;
+                                                    return INITBLOCOS;
+                                                  }
                                                   else yyterminate();
                                                 }
 
-<*>{espacos}\n{espacos}/\[                      {BEGIN NOMEBLOCO;}
+<*>{espacos}\n{espacos}/\[                      {
+                                                  BEGIN NOMEBLOCO;
+                                                  if (primeiroBloco == 0) {
+                                                    primeiroBloco = 1;
+                                                    return INITBLOCOS;
+                                                  }
+                                                }
+
+<*>[a-z][^ \n\t\r\]\"]*                         {BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
+
 <*>{espacos}\n                                  {}
 <*>.                                            {}
 
