@@ -61,7 +61,21 @@ espacos   [ ]*
 <VALORBLOCO>{espacos}\[                         {BEGIN ESPACOS; return '[';}
 <VALORBLOCO>{espacos}                           {BEGIN VALOR;}
 
-<VALOR>[^ \t\n\r#]+                             {BEGIN BLOCO; yylval.s = strdup(yytext); return valor;} 
+<VALOR>[0-2][0-9]:[0-5][0-9]:[0-5][0-9]                             {
+                                                                      char horas[100]; 
+                                                                      sprintf(horas,"\"%s\"",yytext); 
+                                                                      yylval.s = strdup(horas);
+                                                                      BEGIN BLOCO;
+                                                                      return valor;
+                                                                    }
+<VALOR>[0-9]{4}-(0[1-9])|(1[0-2])-(0[1-9])|([1-2][0-9])|(3[01])     {
+                                                                      char data[100]; 
+                                                                      sprintf(data,"\"%s\"",yytext); 
+                                                                      yylval.s = strdup(data); 
+                                                                      BEGIN BLOCO;
+                                                                      return valor;
+                                                                    }
+<VALOR>[^ \t\n\r#]+                                                 {BEGIN BLOCO; yylval.s = strdup(yytext); return valor;} 
 
 <ASPASBLOCO>\"                                  {BEGIN BLOCO; return '"';}
 <ASPASBLOCO>[^"]+                               {yylval.s = strdup(yytext); return string; }
