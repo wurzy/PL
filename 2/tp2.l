@@ -37,7 +37,7 @@ espacos   [ ]*
                                                   return chave;  
                                                 }
 <NOMEBLOCO>\]                                   {return ']';}
-<NOMEBLOCO>{espacos}\n/\[?                      {BEGIN BLOCO; return '\n';}                                                                        
+<NOMEBLOCO>{espacos}\n{espacos}/\[?             {BEGIN BLOCO; return '\n';}                                                                        
 
 <BLOCO>{espacos}[a-z][^ \n\t\r]*                {newlines = 0; BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
 <BLOCO>{espacos}\n{espacos}/(\n|#)              {
@@ -45,7 +45,7 @@ espacos   [ ]*
                                                   bloco--;
                                                   newlines++;
                                                 }  
-<BLOCO>{espacos}\n                              {}
+<BLOCO>{espacos}\n{espacos}                     {}
 <BLOCO>\[                                       {BEGIN NOMEBLOCO; return '[';}
 
 <VALORTITULO>{espacos}=                         {return '=';}
