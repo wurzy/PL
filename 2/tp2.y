@@ -50,14 +50,10 @@ Valor: Aspas                                {asprintf(&$$,"%s",$1);}
     ;
 
 Array: '[' ElsArray ']'                     {asprintf(&$$,"[\n%s\n    ]",$2);} 
-    | '[' ']'                               {asprintf(&$$,"[],\n");} 
-    | '[' '\n' ElsArray ']'                 {asprintf(&$$,"[\n%s\n    ]",$3);} 
-    | '[' '\n' ElsArray '\n' ']'            {asprintf(&$$,"[\n%s\n    ]",$3);} 
-    | '[' ElsArray '\n' ']'                 {asprintf(&$$,"[\n%s\n    ]",$2);} 
+    | '[' ']'                               {asprintf(&$$,"[],\n");}
     ;
 
-ElsArray: ElsArray ',' Valor                {asprintf(&$$,"%s,\n      %s",$1,$3);} 
-    | ElsArray ',' '\n' Valor               {asprintf(&$$,"%s,\n      %s",$1,$4);} 
+ElsArray: ElsArray ',' Valor                {asprintf(&$$,"%s,\n      %s",$1,$3);}
     | Valor                                 {asprintf(&$$,"      %s",$1);} 
     ;
 
