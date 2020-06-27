@@ -49,8 +49,9 @@ extern int yydebug;
     valor = 259,
     chave = 260,
     string = 261,
-    NEWLINE2 = 262,
-    FIM = 263
+    FIMTITULO = 262,
+    FIMTAG = 263,
+    FIMBLOCO = 264
   };
 #endif
 /* Tokens.  */
@@ -58,19 +59,20 @@ extern int yydebug;
 #define valor 259
 #define chave 260
 #define string 261
-#define NEWLINE2 262
-#define FIM 263
+#define FIMTITULO 262
+#define FIMTAG 263
+#define FIMBLOCO 264
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 14 "tp2.y" /* yacc.c:1909  */
+#line 18 "tp2.y" /* yacc.c:1909  */
  
-	char* s;
+    char* s;
 
-#line 74 "y.tab.h" /* yacc.c:1909  */
+#line 76 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

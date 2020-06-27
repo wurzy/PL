@@ -68,7 +68,7 @@ espacos   [ ]*
                                                                       BEGIN BLOCO;
                                                                       return valor;
                                                                     }
-<VALOR>[0-9]{4}-(0[1-9])|(1[0-2])-(0[1-9])|([1-2][0-9])|(3[01])     {
+<VALOR>[0-9]{4}-(0[1-9]|1[0-2])-([1-2][0-9]|0[1-9]|3[01])           {
                                                                       char data[100]; 
                                                                       sprintf(data,"\"%s\"",yytext); 
                                                                       yylval.s = strdup(data); 
