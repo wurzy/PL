@@ -7,46 +7,71 @@
 
 #define MAXBLOCO 1024
 
-int yylex();
-int yyerror(char* s);
 extern FILE * yyin;
+extern int bloco;
 FILE* yyout;
 
+int yylex();
+int yyerror(char* s);
+char* stringIndent();
 %}
 
-%token TITLE valor chave string FIMTITULO FIMTAG FIMBLOCO
+%token TITLE valor chave string INITBLOCOS FIMTITULO FIMTAG FIMBLOCO
 %union{ 
     char* s;
 }
 
-%type <s> TITLE valor chave string
-%type <s> Blocos Bloco ElsBloco ElemBloco TagBloco ChaveValor Valor Array ElsArray Aspas
+%type <s> valor chave string
+%type <s> Blocos Bloco ElsBloco ElemBloco TagBloco ChavesValores ChaveValor Valor Array ElsArray Aspas
 
 %%
 
-Toml: TITLE '=' Aspas FIMTITULO Blocos      {fprintf(yyout,"{\n  \"title\": %s%s\n}",$3,$5);}
+Toml: ChavesValores INITBLOCOS Blocos       {
+                                                if(strlen($3) == 0) fprintf(yyout,"{%s\n}",$1);
+                                                else if(strlen($1) == 0) fprintf(yyout,"{%s\n}",$3);
+                                                else fprintf(yyout,"{%s,%s\n}",$1,$3);
+                                            }
     ;
 
-Blocos: Blocos Bloco                        {asprintf(&$$,"%s,\n  %s",$1,$2);}
+Blocos: Blocos Bloco                        {
+                                                if(strlen($1) > 0) asprintf(&$$,"%s,\n  %s",$1,$2);
+                                                else asprintf(&$$,"\n  %s",$2);
+                                            }
     |                                       {$$ = "";}
     ;
 
-Bloco: TagBloco FIMTAG ElsBloco FIMBLOCO    {asprintf(&$$,"%s%s\n  }",$1,$3);}
+Bloco: TagBloco FIMTAG ElsBloco FIMBLOCO    {
+                                                char* indentacao = stringIndent();
+                                                asprintf(&$$,"%s%s\n  %s}",$1,$3,indentacao);
+                                            }
     ;
 
-ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s,\n    %s",$1,$2);}
+ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s,\n  %s",$1,$2);}
     | ElemBloco                             {asprintf(&$$,"  %s",$1);}
     ;
 
-ElemBloco: ChaveValor                       {asprintf(&$$,"%s",$1);}
+ElemBloco: ChaveValor                       {
+                                                char* indentacao = stringIndent();
+                                                asprintf(&$$,"%s%s",indentacao,$1);
+                                            }
     | Bloco                                 {asprintf(&$$,"%s",$1);}
     ;   
 
-TagBloco: '[' chave ']'                     {asprintf(&$$,"\"%s\": {\n  ",$2);}
+TagBloco: '[' chave ']'                     {
+                                                char* indentacao = stringIndent();
+                                                asprintf(&$$,"%s\"%s\": {\n",indentacao,$2);
+                                            }
     ;
 
-ChaveValor: chave '=' Valor                 {asprintf(&$$,"\"%s\": %s",$1,$3);}
+ChavesValores: ChavesValores ChaveValor     {
+                                                if(strlen($1) > 0) asprintf(&$$,"%s,\n%s",$1,$2);
+                                                else asprintf(&$$,"\n%s",$2);
+                                            }
+    |                                       {$$ = "";}
     ;
+
+ChaveValor: chave '=' Valor                 {asprintf(&$$,"  \"%s\": %s",$1,$3);}
+    ;                                       
 
 Valor: Aspas                                {asprintf(&$$,"%s",$1);}
     | valor                                 {asprintf(&$$,"%s",$1);}
@@ -87,4 +112,12 @@ int yyerror(char* s){
     extern int yylineno;
     extern char* yytext;
     fprintf(stderr, "Linha %d: %s (%s)\n",yylineno,s,yytext);
+}
+
+char* stringIndent(){
+    char* indentacao = malloc(strlen(""));
+    indentacao[0] = '\0';
+    for (int i = 0; i < bloco-1; i++)
+       strcat(indentacao,"  ");
+    return indentacao;
 }
