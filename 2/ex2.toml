@@ -4,24 +4,25 @@ title = "TOML Example"
 name = "Tom Preston-Werner"
 date = 2010-04-23
 time = 21:30:00
-
-
-
-
-
-
-
-
-[database]
+	[database]
 server = "192.168.1.1"
 ports = [ 8001, 8001, 8002 ]
 connection_max = 5000
 enabled = true
 
-[servers]
+		[servers]
 [servers.alpha]
   ip = "10.0.0.1"
   dc = "eqdc10"
+[servers.alpha.x]
+		ipx = 1001
+		dcx = 1002
+
+[servers.alpha.x.x2]
+	ipx2 = 10001
+[servers.alpha.y]
+		ipy = 2001
+		dcy = 2002
 
 [servers.beta]
   ip = "10.0.0.2"
@@ -32,3 +33,6 @@ hosts = [
   "alpha",
   "omega"
 ]
+
+   [banana]
+x = false
