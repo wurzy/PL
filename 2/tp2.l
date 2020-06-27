@@ -76,8 +76,8 @@ espacos   [ ]*
 <ESPACOS>{espacos}                              {BEGIN ARRAY;}
 <ESPACOS>{espacos}\"                            {BEGIN ASPASARRAY; return '"';}
 
-<*><<EOF>>                                      {
-                                                  if (bloco > 1) {
+<*><<EOF>>                                      { 
+                                                  if (bloco > 0) {
                                                     tokens[0] = bloco-1;
                                                     bloco = 0;
                                                     return FIMBLOCO;
