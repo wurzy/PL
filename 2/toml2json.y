@@ -8,7 +8,6 @@
 #define MAXBLOCO 1024
 
 extern FILE * yyin;
-extern int primeiroBloco;
 extern int blocoAtual;
 extern int arrayAtual;
 FILE* yyout;
@@ -54,7 +53,7 @@ ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s,\n%s",$1,$2);}
 
 ElemBloco: ChaveValor                       {
                                                 char* indentacao = indent(blocoAtual);
-                                                asprintf(&$$,"%s%s",indentacao,$1);
+                                                asprintf(&$$,"%s",$1);
                                             }
     | Bloco                                 {asprintf(&$$,"%s",$1);}
     ;   
@@ -73,32 +72,41 @@ ChavesValores: ChavesValores ChaveValor     {
     ;
 
 ChaveValor: chave '=' Valor                                 {
-                                                                char* indentacao = indent(blocoAtual);
+                                                                char* indentacao;
+                                                                if (blocoAtual==0) indentacao = indent(blocoAtual);
+                                                                else indentacao = indent(blocoAtual+1);
                                                                 asprintf(&$$,"%s\"%s\": %s",indentacao,$1,$3);
                                                             }
     | chave '.' chave '=' Valor ChaveBloco FIMCHAVEBLOCO    {
                                                                 char* ind = indent(blocoAtual);
                                                                 char* ind1 = indent(blocoAtual+1);
                                                                 char* ind2 = indent(blocoAtual+2);
-                                                                if(strlen($6)==0 && primeiroBloco==0)
+                                                                if(strlen($6)==0 && blocoAtual==0)
                                                                     asprintf(&$$,"%s\"%s\": {\n%s\"%s\": %s\n%s}",ind,$1,ind1,$3,$5,ind);
-                                                                else if(strlen($6)==0 && primeiroBloco!=0)
-                                                                    asprintf(&$$,"%s\"%s\": {\n%s\"%s\": %s\n%s}",ind,$1,ind2,$3,$5,ind1);
-                                                                else
-                                                                    asprintf(&$$,"%s\"%s\": {\n%s\"%s\": %s,\n%s%s%s}",ind,$1,ind2,$3,$5,ind,$6,ind);
+                                                                if(strlen($6)==0 && blocoAtual!=0)
+                                                                    asprintf(&$$,"%s\"%s\": {\n%s\"%s\": %s\n%s}",ind1,$1,ind2,$3,$5,ind1);
+                                                                if(strlen($6)!=0 && blocoAtual==0)
+                                                                    asprintf(&$$,"%s\"%s\": {\n%s\"%s\": %s,\n%s%s}",ind,$1,ind1,$3,$5,ind,$6);
+                                                                if(strlen($6)!=0 && blocoAtual!=0)
+                                                                    asprintf(&$$,"%s\"%s\": {\n%s\"%s\": %s,\n%s%s%s}",ind1,$1,ind2,$3,$5,ind2,$6,ind1);
                                                             }
     ;                                       
 
-ChaveBloco: ChaveBloco ElemChaveBloco       {
-                                                char* indentacao = indent(blocoAtual);
-                                                asprintf(&$$,"%s%s%s,\n%s",$1,indentacao,$2,indentacao);
+ChaveBloco: ElemChaveBloco ChaveBloco       {
+                                                char* ind = indent(blocoAtual);
+                                                char* ind2 = indent(blocoAtual+2);
+                                                if (strlen($2)==0 && blocoAtual==0) asprintf(&$$,"%s%s\n%s",$1,$2,ind);
+                                                if (strlen($2)!=0 && blocoAtual==0) asprintf(&$$,"%s,\n%s%s",$1,ind,$2);
+                                                if (strlen($2)==0 && blocoAtual!=0) asprintf(&$$,"%s%s\n%s",$1,ind2,$2);
+                                                if (strlen($2)!=0 && blocoAtual!=0) asprintf(&$$,"%s,\n%s%s",$1,ind2,$2);
                                             }
     |                                       {$$ = "";}
     ;
 
 ElemChaveBloco: chave '.' chave '=' Valor   {
                                                 char* indentacao = indent(blocoAtual);
-                                                asprintf(&$$,"%s\"%s\": %s",indentacao,$3,$5);
+                                                if (blocoAtual==0) asprintf(&$$,"%s\"%s\": %s",indentacao,$3,$5);
+                                                else asprintf(&$$,"\"%s\": %s",$3,$5);
                                             }
     ;
 
@@ -161,7 +169,7 @@ char* indent(int iter){
     char* indentacao = malloc(strlen(""));
     indentacao[0] = '\0';
 
-    if(primeiroBloco==0) iter++;    
+    if(blocoAtual==0) iter++;    
     for (int i = 0; i < iter; i++)
        strcat(indentacao,"  ");
     return indentacao;
