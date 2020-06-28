@@ -1,4 +1,4 @@
-a=tp2
+a=toml2json
 
 $a : $a.y $a.l
 	flex $a.l
