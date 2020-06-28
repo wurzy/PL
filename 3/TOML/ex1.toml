@@ -12,10 +12,6 @@ permissions = "root"
 [bin]
 [bin.execute]
 size = 100
-files.names = [ "ls", "rm", "cat" ]
-files.permissions = [ "rd", "rdrw", "rd" ]
-files.owner = [ "root", "root", "root" ]
-[bin.properties]
-open = false
-writable = true
-readable = false
+names = [ "ls", "rm", "cat" ]
+permissions = [ "rd", "rdrw", "rd" ]
+owner = [ "root", "root", "root" ]

@@ -8,7 +8,6 @@ spacing = "14pt"
 
 [about]
 name = "Group 104"
-group.members = [ "Jack", "Joe", "John" ]
 group.registered = 2019-03-21
 group.theme = "Geometry"
 teacher = "ffs"
