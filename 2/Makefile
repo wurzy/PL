@@ -5,11 +5,10 @@ $a : $a.y $a.l
 	yacc -d $a.y
 	cc -o $a y.tab.c lex.yy.c -lm
 
-teste: $a exemplo
-	paste -d: exemplo <($a  < exemplo ) | column -t -s:
-
 install: $a
-	cp $a /usr/local/bin/
+	sudo cp $a /usr/local/bin/
 
 clean:
-	rm -f lex.yy.c y.tab.*
+	sudo rm -f $a
+	sudo rm -f /usr/local/bin/$a
+	sudo rm -f lex.yy.c y.tab.*
