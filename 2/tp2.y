@@ -8,12 +8,14 @@
 #define MAXBLOCO 1024
 
 extern FILE * yyin;
-extern int bloco;
+extern int primeiroBloco;
+extern int blocoAtual;
+extern int arrayAtual;
 FILE* yyout;
 
 int yylex();
 int yyerror(char* s);
-char* stringIndent();
+char* indent(int iter);
 %}
 
 %token TITLE valor chave string INITBLOCOS FIMTITULO FIMTAG FIMBLOCO
@@ -34,31 +36,31 @@ Toml: ChavesValores INITBLOCOS Blocos       {
     ;
 
 Blocos: Blocos Bloco                        {
-                                                if(strlen($1) > 0) asprintf(&$$,"%s,\n  %s",$1,$2);
-                                                else asprintf(&$$,"\n  %s",$2);
+                                                if(strlen($1) > 0) asprintf(&$$,"%s,\n%s",$1,$2);
+                                                else asprintf(&$$,"\n%s",$2);
                                             }
     |                                       {$$ = "";}
     ;
 
 Bloco: TagBloco FIMTAG ElsBloco FIMBLOCO    {
-                                                char* indentacao = stringIndent();
-                                                asprintf(&$$,"%s%s\n  %s}",$1,$3,indentacao);
+                                                char* indentacao = indent(blocoAtual);
+                                                asprintf(&$$,"%s%s\n%s}",$1,$3,indentacao);
                                             }
     ;
 
-ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s,\n  %s",$1,$2);}
-    | ElemBloco                             {asprintf(&$$,"  %s",$1);}
+ElsBloco: ElsBloco ElemBloco                {asprintf(&$$,"%s,\n%s",$1,$2);}
+    | ElemBloco                             {asprintf(&$$,"%s",$1);}
     ;
 
 ElemBloco: ChaveValor                       {
-                                                char* indentacao = stringIndent();
+                                                char* indentacao = indent(blocoAtual);
                                                 asprintf(&$$,"%s%s",indentacao,$1);
                                             }
     | Bloco                                 {asprintf(&$$,"%s",$1);}
     ;   
 
-TagBloco: '[' chave ']'                     {
-                                                char* indentacao = stringIndent();
+TagBloco: '[' chave ']'                     { 
+                                                char* indentacao = indent(blocoAtual);
                                                 asprintf(&$$,"%s\"%s\": {\n",indentacao,$2);
                                             }
     ;
@@ -70,7 +72,10 @@ ChavesValores: ChavesValores ChaveValor     {
     |                                       {$$ = "";}
     ;
 
-ChaveValor: chave '=' Valor                 {asprintf(&$$,"  \"%s\": %s",$1,$3);}
+ChaveValor: chave '=' Valor                 {
+                                                char* indentacao = indent(blocoAtual);
+                                                asprintf(&$$,"%s\"%s\": %s",indentacao,$1,$3);
+                                            }
     ;                                       
 
 Valor: Aspas                                {asprintf(&$$,"%s",$1);}
@@ -78,12 +83,25 @@ Valor: Aspas                                {asprintf(&$$,"%s",$1);}
     | Array                                 {asprintf(&$$,"%s",$1);}
     ;
 
-Array: '[' ElsArray ']'                     {asprintf(&$$,"[\n%s\n    ]",$2);} 
-    | '[' ']'                               {asprintf(&$$,"[],\n");}
+Array: '[' ElsArray ']'                     {
+                                                char* indentacao = indent(blocoAtual+arrayAtual);
+                                                asprintf(&$$,"[\n%s\n%s]",$2,indentacao);
+                                            } 
+    | '[' ']'                               {asprintf(&$$,"[]");}
     ;
 
-ElsArray: ElsArray ',' Valor                {asprintf(&$$,"%s,\n      %s",$1,$3);}
-    | Valor                                 {asprintf(&$$,"      %s",$1);} 
+ElsArray: ElsArray ',' Valor                {
+                                                char* indentacao;
+                                                if ($3[0] == '[') indentacao = indent(blocoAtual+arrayAtual);
+                                                else indentacao = indent(blocoAtual+arrayAtual+1);
+                                                asprintf(&$$,"%s,\n%s%s",$1,indentacao,$3);
+                                            }
+    | Valor                                 {
+                                                char* indentacao;
+                                                if ($1[0] == '[') indentacao = indent(blocoAtual+arrayAtual);
+                                                else indentacao = indent(blocoAtual+arrayAtual+1);
+                                                asprintf(&$$,"%s%s",indentacao,$1);
+                                            } 
     ;
 
 Aspas: '"' string '"'                     {asprintf(&$$,"\"%s\"",$2);}   
@@ -114,10 +132,12 @@ int yyerror(char* s){
     fprintf(stderr, "Linha %d: %s (%s)\n",yylineno,s,yytext);
 }
 
-char* stringIndent(){
+char* indent(int iter){
     char* indentacao = malloc(strlen(""));
     indentacao[0] = '\0';
-    for (int i = 0; i < bloco-1; i++)
+
+    if(primeiroBloco==0) iter++;    
+    for (int i = 0; i < iter; i++)
        strcat(indentacao,"  ");
     return indentacao;
 }
