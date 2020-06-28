@@ -21,6 +21,7 @@ int arrayAtual = 0;
 int decArrayAtual = 0;
 
 int blocoAspas = 0;
+int chaveComposta = 0;
 char* chaveBlocoAtual = NULL;
 
 int tokensAcumulados();
@@ -69,6 +70,7 @@ chave     [a-z][^ \.\n\t\r\[\]\"]*
 <NOMEBLOCO>{espacos}\n{espacos}/\[?             {BEGIN BLOCO; return FIMTAG;}                                                                        
 
 <BLOCO>\.                                       {return '.';}
+<BLOCO>\"                                       {chaveComposta = 1; BEGIN ASPAS;}
 <BLOCO>{chave}                                  {BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
 <BLOCO>\[                                       {tokens[1] = 1; BEGIN NOMEBLOCO;}
 
@@ -112,13 +114,20 @@ chave     [a-z][^ \.\n\t\r\[\]\"]*
                                                 }
 
 <ASPAS>\"                                       {
-                                                  if(blocoAspas == 1) BEGIN BLOCO;
-                                                  if(blocoAspas == 2) BEGIN ARRAY;
-                                                  if(chaveBlocoAtual) BEGIN 0;
-                                                  blocoAspas = 0;
-                                                  return '"';
+                                                  if(chaveComposta==1) {chaveComposta=0; BEGIN VALORBLOCO;}
+                                                  else {
+                                                    if(blocoAspas == 1) BEGIN BLOCO;
+                                                    if(blocoAspas == 2) BEGIN ARRAY;
+                                                    if(chaveBlocoAtual) BEGIN 0;
+                                                    blocoAspas = 0;
+                                                    return '"';
+                                                  }
                                                 }
-<ASPAS>[^"]+                                    {yylval.s = strdup(yytext); return string;}
+<ASPAS>[^"]+                                    {
+                                                  yylval.s = strdup(yytext);
+                                                  if(chaveComposta==1) return chave;
+                                                  else return string;
+                                                }
 
 <*><<EOF>>                                      {
                                                   if (blocoDpsTokens > 0) {
