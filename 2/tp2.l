@@ -1,5 +1,5 @@
 %option noyywrap yylineno
-%x BLOCO NOMEBLOCO VALORBLOCO VALOR ARRAY ESPACOS VALORTITULO ASPASBLOCO ASPASARRAY
+%x BLOCO NOMEBLOCO VALORBLOCO VALOR ARRAY VALORTITULO ASPASBLOCO ASPASARRAY
 %{
 #include <stdio.h>
 #include <sys/stat.h>
@@ -11,10 +11,15 @@
 #define MAXBLOCO 1024
 
 int tokens[3] = {0}; //FIMBLOCO, '[', chave
-int primeiroBloco = 0;
-int bloco = 0;
 int aspaTitulo = 0;
 char *blocos[MAXBLOCO];
+
+int primeiroBloco = 0;
+int blocoAtual = 0;
+int blocoDpsTokens = 0;
+
+int arrayAtual = 0;
+int decArrayAtual = 0;
 
 int tokensAcumulados();
 void atualizaBlocos();
@@ -28,11 +33,15 @@ palavra   {letra}+
 espacos   [ ]*  
 
 %%
+  if (decArrayAtual == 1) {arrayAtual--; decArrayAtual = 0;}
+  if (blocoAtual > blocoDpsTokens) blocoAtual--;
+  if (blocoAtual < blocoDpsTokens) blocoAtual++;
+
   int token = tokensAcumulados();
   switch(token){
     case 0: return FIMBLOCO;
     case 1: return '[';
-    case 2: {yylval.s = strdup(blocos[bloco-1]); return chave;}
+    case 2: yylval.s = strdup(blocos[blocoAtual-1]); return chave;
   }
 
 <*>#.*                                          {}
@@ -58,7 +67,7 @@ espacos   [ ]*
 
 <VALORBLOCO>{espacos}=                          {return '=';}
 <VALORBLOCO>{espacos}\"                         {BEGIN ASPASBLOCO; return '"';}
-<VALORBLOCO>{espacos}\[                         {BEGIN ESPACOS; return '[';}
+<VALORBLOCO>{espacos}\[                         {BEGIN ARRAY; arrayAtual++; return '[';}
 <VALORBLOCO>{espacos}                           {BEGIN VALOR;}
 
 <VALOR>[0-2][0-9]:[0-5][0-9]:[0-5][0-9]                             {
@@ -80,20 +89,23 @@ espacos   [ ]*
 <ASPASBLOCO>\"                                  {BEGIN BLOCO; return '"';}
 <ASPASBLOCO>[^"]+                               {yylval.s = strdup(yytext); return string; }
 
-<ARRAY>{espacos},                               {BEGIN ESPACOS; return ',';}
-<ARRAY>[^,\] \n\t\r]+                           {yylval.s = strdup(yytext); return valor;}
-<ARRAY>\]                                       {BEGIN BLOCO; return ']';}
+<ARRAY>,                                        {return ',';}
+<ARRAY>\"                                       {BEGIN ASPASARRAY; return '"';}
+<ARRAY>[^,\[\] \n\t\r]+                         {yylval.s = strdup(yytext); return valor;}
+<ARRAY>\[                                       {arrayAtual++; return '[';}
+<ARRAY>\]                                       {
+                                                  decArrayAtual = 1; 
+                                                  if(arrayAtual-1 == 0) BEGIN BLOCO;
+                                                  return ']';
+                                                }
 
 <ASPASARRAY>\"                                  {BEGIN ARRAY; return '"';}
 <ASPASARRAY>[^"]+                               {yylval.s = strdup(yytext); return string; }
 
-<ESPACOS>{espacos}                              {BEGIN ARRAY;}
-<ESPACOS>{espacos}\"                            {BEGIN ASPASARRAY; return '"';}
-
-<*><<EOF>>                                      { 
-                                                  if (bloco > 0) {
-                                                    tokens[0] = bloco-1;
-                                                    bloco = 0;
+<*><<EOF>>                                      {
+                                                  if (blocoDpsTokens > 0) {
+                                                    tokens[0] = blocoDpsTokens-1;
+                                                    blocoDpsTokens = 0;
                                                     return FIMBLOCO;
                                                   }
                                                   else if (primeiroBloco == 0) {
@@ -112,7 +124,6 @@ espacos   [ ]*
                                                 }
 
 <*>[a-z][^ \n\t\r\]\"]*                         {BEGIN VALORBLOCO; yylval.s = strdup(yytext); return chave;}
-
 <*>{espacos}\n                                  {}
 <*>.                                            {}
 
@@ -138,26 +149,26 @@ int tokensAcumulados() {
 
 void atualizaBlocos(char* yytext) {
   int subbloco = 0;
-  int blocoInit = bloco;
+  int blocoInit = blocoAtual;
 
-  if (bloco > 0) {
+  if (blocoAtual > 0) {
     char blocoAcima[1024];
-    for (int i = bloco-1; i >= 0; i--) {
+    for (int i = blocoAtual-1; i >= 0; i--) {
       sprintf(blocoAcima,"%s.",blocos[i]);
       char* pos = strstr(yytext, blocoAcima);
 
       if(pos != NULL) { //subbloco
-        if (i == bloco-1) { //subbloco num novo nivel: servers -> servers.alpha
-          blocos[bloco] = strdup(pos+strlen(blocoAcima));
-          bloco++;
+        if (i == blocoAtual-1) { //subbloco num novo nivel: servers -> servers.alpha
+          blocos[blocoAtual] = strdup(pos+strlen(blocoAcima));
+          blocoDpsTokens = blocoAtual+1;
         }
         else { //subbloco no nivel atual: servers.alpha -> servers.beta
-          for (int j = i+1; j < bloco; j++){
+          for (int j = i+1; j < blocoAtual; j++){
             free(blocos[j]);
             blocos[j] = NULL;
           }
           blocos[i+1] = strdup(pos+strlen(blocoAcima));
-          bloco = i+2;
+          blocoDpsTokens = i+2;
         }
         subbloco = 1;
         break;
@@ -166,15 +177,15 @@ void atualizaBlocos(char* yytext) {
   }
 
   if (subbloco == 0) {
-    for (int i = 0; i < bloco; i++){
+    for (int i = 0; i < blocoAtual; i++){
       free(blocos[i]);
       blocos[i] = NULL;
     }
     blocos[0] = strdup(yytext);
-    bloco = 1;
+    blocoDpsTokens = 1;
   }
 
-  if (blocoInit >= bloco) tokens[0] = blocoInit-bloco+1;
+  if (blocoInit >= blocoDpsTokens) tokens[0] = blocoInit-blocoDpsTokens+1;
   else tokens[0] = -1;
   tokens[2] = 1;
 }
