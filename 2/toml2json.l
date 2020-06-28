@@ -49,7 +49,11 @@ chave     [a-z][^ \.\n\t\r\[\]\"]*
               else yylval.s = strdup(blocos[blocoAtual-1]); 
               return chave;
             }
-    case 3: {yylval.s = strdup(chaveBlocoAtual); free(chaveBlocoAtual); chaveBlocoAtual = NULL;}
+    case 3: {
+              yylval.s = strdup(chaveBlocoAtual);
+              free(chaveBlocoAtual); chaveBlocoAtual = NULL;
+              return chave;
+            }
   }
 
 <*>#.*                                          {}
@@ -158,13 +162,13 @@ chave     [a-z][^ \.\n\t\r\[\]\"]*
                                                   return chave;
                                                 }
 <*>{chave}                                      {
+                                                  BEGIN VALORBLOCO; 
                                                   if(chaveBlocoAtual) {
                                                     free(chaveBlocoAtual); chaveBlocoAtual = NULL;
                                                     chaveBlocoAtual = strdup(yytext);
                                                     tokens[2] = -1;
                                                     return FIMCHAVEBLOCO;
                                                   }
-                                                  BEGIN VALORBLOCO; 
                                                   yylval.s = strdup(yytext); 
                                                   return chave;
                                                 }
