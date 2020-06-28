@@ -34,7 +34,9 @@ acentos   \xc3[\x80-\xbf]
 letra     [a-zA-Z]|{acentos}       
 palavra   {letra}+  
 espacos   [ ]*
-chave     [a-z][^ \.\n\t\r\[\]\"]*
+chave     [a-z][^ \,\.\n\t\r\[\]\"]*
+nullbool  (true)|(false)|(null)
+num       (\+|-)?[0-9]+(\.[0-9]+)?
 
 %%
   if (decArrayAtual == 1) {arrayAtual--; decArrayAtual = 0;}
@@ -79,13 +81,13 @@ chave     [a-z][^ \.\n\t\r\[\]\"]*
 <VALORBLOCO>{espacos}\[                         {BEGIN ARRAY; arrayAtual++; return '[';}
 <VALORBLOCO>{espacos}                           {BEGIN VALOR;}
 
-<VALOR>(true)|(false)|(null)                    {
+<VALOR>{nullbool}                                 {
                                                   if(chaveBlocoAtual) BEGIN 0;
                                                   else BEGIN BLOCO;
                                                   yylval.s = strdup(yytext); 
                                                   return valor;
                                                 }
-<VALOR>(\+|-)?[0-9]+(\.[0-9]+)?                 {
+<VALOR>{num}                                      {
                                                   if(chaveBlocoAtual) BEGIN 0;
                                                   else BEGIN BLOCO;
                                                   if(yytext[0] == '+') yylval.s = strdup(yytext+1);
@@ -104,7 +106,19 @@ chave     [a-z][^ \.\n\t\r\[\]\"]*
 
 <ARRAY>,                                        {return ',';}
 <ARRAY>\"                                       {blocoAspas = 2; BEGIN ASPAS; return '"';}
-<ARRAY>[^,\[\] \n\t\r]+                         {yylval.s = strdup(yytext); return valor;}
+<ARRAY>{nullbool}                               {yylval.s = strdup(yytext); return valor;}
+<ARRAY>{num}                                    {
+                                                  if(yytext[0] == '+') yylval.s = strdup(yytext+1);
+                                                  else yylval.s = strdup(yytext);
+                                                  return valor;
+                                                }
+<ARRAY>[^,\"\[\] \n\t\r]+                       {
+                                                  char* text = malloc(strlen(yytext)+2); 
+                                                  sprintf(text,"\"%s\"",yytext); 
+                                                  yylval.s = strdup(text);
+                                                  free(text);
+                                                  return valor;
+                                                }
 <ARRAY>\[                                       {arrayAtual++; return '[';}
 <ARRAY>\]                                       {
                                                   decArrayAtual = 1; 
